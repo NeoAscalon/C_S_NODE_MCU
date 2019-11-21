@@ -23,8 +23,9 @@ void Deconnetion(); //Disconect from Server
 String Message = (String)NULL;
 WiFiClient Server;
 
-// the setup function runs once when you press reset or power the board
-void setup() {
+
+void setup() // the setup function runs once when you press reset or power the board
+{
 
 	Serial.begin(115200);
 	Serial.print("Connecting to ");
@@ -57,7 +58,8 @@ void setup() {
 }
 
 
-void loop() {
+void loop() 
+{
 
 	bool a = false;
 
