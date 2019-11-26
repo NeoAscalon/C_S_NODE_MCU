@@ -6,13 +6,14 @@
 
 #include <ESP8266WiFi.h>
 #include <HardwareSerial.h>
+#include <string>
 
 const char* ssid = "Point4";      // SSID
 const char* password = "PointAccess4";      // Password
 const char* host = "172.16.8.52";  // IP serveur - Server IP
 const char* ID_Carte = "01";
-const char* ID_Lam1 = "L01";
-const char* ID_Lam2 = "L02";
+const char* ID_Lam1 = "L1";
+const char* ID_Lam2 = "L2";
 const int   port = 9000;            // Port serveur - Server Port
 
 void Reconnection(); //If signal to server is lost
@@ -59,12 +60,12 @@ void setup() // the setup function runs once when you press reset or power the b
 
 }
 
-
 void loop() 
 {
 	Reconnection();
 	ServerPrint();
 	delay(5000);
+	ServerRead();
 
 }
 
@@ -75,9 +76,9 @@ void Reconnection()
 		Server.stop();
 		while (!Server.connected())
 		{
-			delay(500);
 			Serial.print(".");
 			Server.connect(host, port);
+			delay(500);
 		}
 
 		Serial.println();
@@ -93,16 +94,18 @@ void ServerPrint()
 	if (Message != "0") {
 		Serial.println(Message);
 		Server.print("Le Message recu est: " + Message );
-	
 	}
 }
 
 void ServerRead()
 {
-	Message = Server.readStringUntil('\r');
-	if (Message != NULL)
+	if (Server.available)
 	{
-		Serial.println("Nous avons Recu: " + Message);
+		Message = Server.readStringUntil('\r');
+		if (Message != NULL)
+		{
+			Serial.println("Nous avons Recu: " + Message);
+		}
 	}
 }
 
@@ -114,4 +117,10 @@ void Deconnetion()
 		Server.stop();
 
 	}
+}
+
+void Command_Decript_Execute()
+{
+	//Decriptage de la chaine de caracteres avec .c_str()
+
 }
