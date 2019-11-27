@@ -8,13 +8,16 @@
 #include <HardwareSerial.h>
 #include <string>
 
+
 const char* ssid = "Point4";      // SSID
 const char* password = "PointAccess4";      // Password
 const char* host = "172.16.8.52";  // IP serveur - Server IP
-const char* ID_Carte = "01";
+const char* ID_Carte = "1";
 const char* ID_Lam1 = "L1";
 const char* ID_Lam2 = "L2";
 const int   port = 9000;            // Port serveur - Server Port
+int pin_led1 = 5;
+int pin_led2 = 4;
 
 void Reconnection(); //If signal to server is lost
 void ServerPrint(); //Send to server
@@ -22,7 +25,7 @@ void ServerRead(); //Read from server
 void Deconnetion(); //Disconect from Server
 
 
-String Message = "0";
+String Message = (String)NULL;
 WiFiClient Server;
 WiFiClient ServerPresenceTest;
 
@@ -31,6 +34,12 @@ void setup() // the setup function runs once when you press reset or power the b
 {
 
 	Serial.begin(115200);
+
+	pinMode(pin_led1, OUTPUT);
+	pinMode(pin_led2, OUTPUT);
+	digitalWrite(pin_led1, LOW);
+	digitalWrite(pin_led2, LOW);
+
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 
@@ -60,13 +69,14 @@ void setup() // the setup function runs once when you press reset or power the b
 
 }
 
-void loop() 
+void loop()
 {
 	Reconnection();
-	ServerPrint();
-	delay(5000);
 	ServerRead();
-
+	delay(500);
+	Command_Decript_Execute();
+	//ServerPrint();
+	delay(4500);
 }
 
 void Reconnection()
@@ -91,7 +101,7 @@ void Reconnection()
 void ServerPrint()
 {
 	Message = Serial.readString();
-	if (Message != "0") {
+	if (Message == (String)NULL) {
 		Serial.println(Message);
 		Server.print("Le Message recu est: " + Message );
 	}
@@ -99,13 +109,9 @@ void ServerPrint()
 
 void ServerRead()
 {
-	if (Server.available)
+	if (Server.available())
 	{
 		Message = Server.readStringUntil('\r');
-		if (Message != NULL)
-		{
-			Serial.println("Nous avons Recu: " + Message);
-		}
 	}
 }
 
@@ -121,6 +127,39 @@ void Deconnetion()
 
 void Command_Decript_Execute()
 {
-	//Decriptage de la chaine de caracteres avec .c_str()
+	if (Message != (String)NULL)
+	{
+		Serial.println("Sortie en chaine Char[] :");
+		Message.c_str();
+		int i = 0;
+		do
+		{
+			Serial.print(Message[i]);
+			i++;
+		} while (Message[i] != NULL);
+		Serial.println("");
 
+
+		if (Message == "1A")
+		{
+			digitalWrite(pin_led1, HIGH);
+		}
+		else if(Message == "1E")
+		{
+			digitalWrite(pin_led1, LOW);
+		}
+
+
+		if (Message == "2A")
+		{
+			digitalWrite(pin_led2, HIGH);
+		}
+		else if (Message == "2E")
+		{
+			digitalWrite(pin_led2, LOW);
+		}
+
+
+	}
+	Message = (String)NULL;
 }
