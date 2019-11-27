@@ -12,12 +12,14 @@
 const char* ssid = "Point4";      // SSID
 const char* password = "PointAccess4";      // Password
 const char* host = "172.16.8.52";  // IP serveur - Server IP
-const char* ID_Carte = "1";
-const char* ID_Lam1 = "L1";
-const char* ID_Lam2 = "L2";
+const char* ID_Carte = "01";
+const char* ID_Lam1 = "L01";
+const char* ID_Lam2 = "L02";
 const int   port = 9000;            // Port serveur - Server Port
 int pin_led1 = 5;
 int pin_led2 = 4;
+int pin_bouton1 = 12;
+int pin_bouton2 = 15;
 
 void Reconnection(); //If signal to server is lost
 void ServerPrint(); //Send to server
@@ -37,6 +39,8 @@ void setup() // the setup function runs once when you press reset or power the b
 
 	pinMode(pin_led1, OUTPUT);
 	pinMode(pin_led2, OUTPUT);
+	pinMode(pin_bouton1, INPUT);
+	pinMode(pin_bouton2, INPUT);
 	digitalWrite(pin_led1, LOW);
 	digitalWrite(pin_led2, LOW);
 
@@ -46,11 +50,13 @@ void setup() // the setup function runs once when you press reset or power the b
 	WiFi.begin(ssid, password);
 
 	Serial.print("Connecting");
+
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		delay(500);
 		Serial.print(".");
 	}
+	
 	Serial.println();
 
 	Serial.print("Connected To Network, IP address: ");
@@ -73,10 +79,9 @@ void loop()
 {
 	Reconnection();
 	ServerRead();
-	delay(500);
 	Command_Decript_Execute();
 	//ServerPrint();
-	delay(4500);
+	delay(10000);
 }
 
 void Reconnection()
@@ -111,7 +116,7 @@ void ServerRead()
 {
 	if (Server.available())
 	{
-		Message = Server.readStringUntil('\r');
+		Message = Server.readStringUntil('\n');
 	}
 }
 
@@ -119,9 +124,7 @@ void Deconnetion()
 {
 	if (Server.connected())
 	{
-
 		Server.stop();
-
 	}
 }
 
@@ -140,21 +143,21 @@ void Command_Decript_Execute()
 		Serial.println("");
 
 
-		if (Message == "1A")
+		if (Message == "L01A")
 		{
 			digitalWrite(pin_led1, HIGH);
 		}
-		else if(Message == "1E")
+		else if(Message == "L01E")
 		{
 			digitalWrite(pin_led1, LOW);
 		}
 
 
-		if (Message == "2A")
+		if (Message == "L02A")
 		{
 			digitalWrite(pin_led2, HIGH);
 		}
-		else if (Message == "2E")
+		else if (Message == "L02E")
 		{
 			digitalWrite(pin_led2, LOW);
 		}
