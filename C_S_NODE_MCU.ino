@@ -22,22 +22,20 @@ bool AP_1;
 int pin_bouton2 = 15; //D8
 bool AP_2;
 
-void Reconnection(); //If signal to server is lost
-void Server_Read(); //Waiting for client and Read directives from Raspberry server
-void Client_Write(); //Respond to server (optional)
-void Deconnetion(); //Disconect from Server
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
 
 String Message = (String)NULL;
-WiFiClient Client;
 WiFiServer Server(port);
 
+#define SendKey 0
 
 void setup() // the setup function runs once when you press reset or power the board
 {
 
 	Serial.begin(115200);
+	pinMode(SendKey, INPUT_PULLUP);  //Btn to send data
+	Serial.println();
 
 	pinMode(pin_led1, OUTPUT);
 	pinMode(pin_led2, OUTPUT);
@@ -53,6 +51,7 @@ void setup() // the setup function runs once when you press reset or power the b
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 
+	WiFi.mode(WIFI_STA);
 	WiFi.begin(ssid, password);
 
 	Serial.print("Connecting");
@@ -69,7 +68,8 @@ void setup() // the setup function runs once when you press reset or power the b
 	Serial.println(WiFi.localIP());
 
 	Server.begin();
-	Serial.print("Open Client and connect to IP:");
+
+	Serial.print("Server available, IP:");
 	Serial.print(WiFi.localIP());
 	Serial.print(" on port ");
 	Serial.println(port);
@@ -78,61 +78,32 @@ void setup() // the setup function runs once when you press reset or power the b
 
 void loop()
 {
-	Server_Read();
+	WiFiClient Client = Server.available();
 
-	Command_Decript_Execute();
-	
+	if (Client) {
+
+		if (Client.connected())
+		{
+			Serial.println("Client Connecte!");
+		}
+		while (Client.connected()) {
+
+			while (Client.available() > 0) {
+				Message = Client.readString();
+				Serial.println(Message);
+			}
+
+			delay(10);
+		}
+		Command_Decript_Execute();
+		Client.stop();
+		Serial.println("Client disconnected");
+
+	}
 	Controle_Proche();
-	
 	delay(500);
 }
 
-void Reconnection()
-{
-	if (!Client.connected()) {
-
-		Serial.print("Client Lost Connection,Reconecting..");
-		Client.stop();
-
-		while (!Client.connected())
-		{
-			Serial.print(".");
-			Client.connect(host, port);
-			delay(500);
-		}
-
-		Serial.println();
-		Serial.println("Client Connected");
-	}
-}
-
-void Server_Read()
-{
-	Client = Server.available();
-
-		if (Client.connected() && (Client.available() > 0))
-		{
-			Serial.println("Client Connected");
-			Message = Client.readStringUntil('\n');  // read data from the connected client
-			Serial.println(Message);
-		}
-}
-
-void Client_Write()
-{
-	if (Client.connected())
-	{
-		Message = Client.readStringUntil('\n');
-	}
-}
-
-void Deconnetion()
-{
-	if (Client.connected())
-	{
-		Client.stop();
-	}
-}
 
 void Command_Decript_Execute()
 {
