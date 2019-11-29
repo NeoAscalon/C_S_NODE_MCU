@@ -8,8 +8,6 @@
 #include <HardwareSerial.h>
 #include <string>
 
-#define SendKey 0
-
 const char* ssid = "Point4";      // SSID
 const char* password = "PointAccess4";      // Password
 const char* host = "172.16.8.52";  // IP serveur - Server IP
@@ -34,8 +32,6 @@ void Controle_Proche(); //Controle par les boutons physiques
 String Message = (String)NULL;
 WiFiClient Client;
 WiFiServer Server(port);
-
-int count = 0;
 
 
 void setup() // the setup function runs once when you press reset or power the board
@@ -114,15 +110,12 @@ void Server_Read()
 {
 	Client = Server.available();
 
-	if (Client)
-	{
 		if (Client.connected() && (Client.available() > 0))
 		{
 			Serial.println("Client Connected");
 			Message = Client.readStringUntil('\n');  // read data from the connected client
 			Serial.println(Message);
 		}
-	}
 }
 
 void Client_Write()
