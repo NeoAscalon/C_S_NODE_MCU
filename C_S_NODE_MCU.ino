@@ -30,7 +30,7 @@ WiFiServer Server(port);
 
 #define SendKey 0
 
-void setup() // the setup function runs once when you press reset or power the board
+void setup() // Initialisation done only one time when you power up the card
 {
 
 	Serial.begin(115200);
@@ -76,26 +76,27 @@ void setup() // the setup function runs once when you press reset or power the b
 
 }
 
-void loop()
+void loop() //As the name implies this fonction is done in loop avter the setup is done
 {
 	WiFiClient Client = Server.available();
 
-	if (Client) {
+	if (Client)
+	{
 
 		if (Client.connected())
 		{
 			Serial.println("Client Connecte!");
 		}
-		while (Client.connected()) {
+		while (Client.connected())
+		{
 
-			while (Client.available() > 0) {
+			while (Client.available() > 0) 
+			{
 				Message = Client.readString();
-				Serial.println(Message);
 			}
-
 			delay(10);
 		}
-		Command_Decript_Execute();
+		Command_Decript_Execute(); //Note: Possible d'aleger le code en enlevant  if de cette fonction mais il faudra deplacer l'appel de fonction a cote de l'aquisition de tramme juste apres la ligne 95, cela eviterait egalement l'utilisation de ressources memoire inutilement
 		Client.stop();
 		Serial.println("Client disconnected");
 
@@ -105,7 +106,7 @@ void loop()
 }
 
 
-void Command_Decript_Execute()
+void Command_Decript_Execute() //Analisis of the data recieved and execution of the directives sent from the server
 {
 	if (Message != (String)NULL)
 	{
@@ -142,24 +143,22 @@ void Command_Decript_Execute()
 			digitalWrite(pin_led2, LOW);
 			AP_2 = LOW;
 		}
-
-
+		Message = (String)NULL; //usefull to restart the conditioning of the fonction
 	}
-	Message = (String)NULL;
 }
 
 void Controle_Proche()
 {
 	if (digitalRead(pin_bouton1) == HIGH)
 	{
-		Serial.println("Switch1");
+		Serial.println("Bouton 1 Enclanche");
 		AP_1 = (!AP_1);
 		digitalWrite(pin_led1, AP_1);
 	}
 
 	if (digitalRead(pin_bouton2) == HIGH)
 	{
-		Serial.println("Switch2");
+		Serial.println("Bouton 2 Enclanche");
 		AP_2 = (!AP_2);
 		digitalWrite(pin_led2, AP_2);
 
