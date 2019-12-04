@@ -108,6 +108,7 @@ void Controle_Proche()
 		Serial.println("Bouton 1 Enclanche");
 		AP_1 = (!AP_1);
 		digitalWrite(pin_led1, AP_1);
+		while (digitalRead(pin_bouton1) == HIGH);
 	}
 
 	if (digitalRead(pin_bouton2) == HIGH)
@@ -115,6 +116,7 @@ void Controle_Proche()
 		Serial.println("Bouton 2 Enclanche");
 		AP_2 = (!AP_2);
 		digitalWrite(pin_led2, AP_2);
+		while (digitalRead(pin_bouton2) == HIGH);
 	}
 }
 
