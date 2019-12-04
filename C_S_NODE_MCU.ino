@@ -29,6 +29,33 @@ int pin_led2 = 4;	//D2
 int pin_bouton2 = 15;	//D8
 bool AP_2 = LOW;
 
+struct
+{
+	char* ssidUsager;
+	char* passwordUsager;
+	char* hostUsager;
+	int   portUsager;
+	int pin_led1Usager;
+	int pin_bouton1Usager;
+	int pin_led2Usager;
+	int pin_bouton2Usager;
+	bool Y_N_enable = false;
+}
+ParamUsager;
+
+struct
+{
+	char* ssidDefault = "Point4";     // SSID
+	char* passwordDefault = "PointAccess4";      // Password
+	char* hostDefault = "172.16.8.52";  // IP serveur - Server IP
+	int   portDefault = 9000;
+	int pin_led1Default = 2;
+	int pin_bouton1Default = 12;
+	int pin_led2Default = 4;
+	int pin_bouton2Default = 15;
+}
+Default;
+
 void setup() // Initialisation done only one time when you power up the card
 {
 
@@ -58,7 +85,6 @@ void loop() //As the name implies this fonction is done in loop avter the setup 
 	Serveur_Client();
 	Controle_Proche();
 }
-
 
 void Command_Decript_Execute() //Analisis of the data recieved and execution of the directives sent from the server
 {
@@ -165,7 +191,7 @@ void Serveur_Client()
 			}
 			delay(10);
 		}
-		Command_Decript_Execute(); //Note: Possible d'aleger le code en enlevant  if de cette fonction mais il faudra deplacer l'appel de fonction a cote de l'aquisition de tramme juste apres la ligne 95, cela eviterait egalement l'utilisation de ressources memoire inutilement
+		Command_Decript_Execute(); 
 		Client.stop();
 		Serial.println("Client disconnected");
 	}
