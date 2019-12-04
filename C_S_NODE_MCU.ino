@@ -8,10 +8,9 @@
 #include <HardwareSerial.h>
 #include <string>
 
-const char* ssid = "Point4";      // SSID
-const char* password = "PointAccess4";      // Password
-const char* host = "172.16.8.52";  // IP serveur - Server IP
-const int   port = 9000;            // Port serveur - Server Port
+char* ssid;      // SSID
+char* password;      // Password
+int   port;            // Port serveur - Server Port
 
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
@@ -33,7 +32,6 @@ struct
 {
 	char* ssidUsager;
 	char* passwordUsager;
-	char* hostUsager;
 	int   portUsager;
 	int pin_led1Usager;
 	int pin_bouton1Usager;
@@ -47,8 +45,7 @@ struct
 {
 	char* ssidDefault = "Point4";     // SSID
 	char* passwordDefault = "PointAccess4";      // Password
-	char* hostDefault = "172.16.8.52";  // IP serveur - Server IP
-	int   portDefault = 9000;
+	int portDefault = 9000;
 	int pin_led1Default = 2;
 	int pin_bouton1Default = 12;
 	int pin_led2Default = 4;
@@ -60,6 +57,8 @@ void setup() // Initialisation done only one time when you power up the card
 {
 
 	Serial.begin(115200);
+
+	SET_Param();
 
 	pinMode(pin_led1, OUTPUT);
 	digitalWrite(pin_led1, AP_1);
@@ -194,5 +193,22 @@ void Serveur_Client()
 		Command_Decript_Execute(); 
 		Client.stop();
 		Serial.println("Client disconnected");
+	}
+}
+
+void SET_Param()
+{
+	if (ParamUsager.Y_N_enable == true)
+	{
+		ssid = ParamUsager.ssidUsager;      // SSID
+		password = ParamUsager.passwordUsager;      // Password
+		port = ParamUsager.portUsager;            // Port serveur - Server Port
+	}
+	
+	else
+	{
+		ssid = Default.ssidDefault;	// SSID
+		password = Default.passwordDefault;		// Password
+		port = Default.portDefault;	// Port serveur - Server Port
 	}
 }
