@@ -8,6 +8,11 @@
 #include <HardwareSerial.h>
 #include <string>
 
+const char* ssid = "Point4";      // SSID
+const char* password = "PointAccess4";      // Password
+const char* host = "172.16.8.52";  // IP serveur - Server IP
+const int   port = 9000;            // Port serveur - Server Port
+
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
 void WiFi_Connection();
@@ -16,16 +21,10 @@ void Serveur_Client();
 String Message = (String)NULL;
 WiFiServer Server(port);
 
-const char* ssid = "Point4";      // SSID
-const char* password = "PointAccess4";      // Password
-const char* host = "172.16.8.52";  // IP serveur - Server IP
-const char* ID_Carte = "01";
-const char* ID_Lam1 = "L01";
-const char* ID_Lam2 = "L02";
-const int   port = 9000;            // Port serveur - Server Port
 int pin_led1 = 2;	//D4
 int pin_bouton1 = 12;	//D6 
 bool AP_1 = LOW;
+
 int pin_led2 = 4;	//D2
 int pin_bouton2 = 15;	//D8
 bool AP_2 = LOW;
