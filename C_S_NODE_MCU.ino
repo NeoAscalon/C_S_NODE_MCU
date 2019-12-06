@@ -8,9 +8,9 @@
 #include <HardwareSerial.h>
 #include <string>
 
-char* ssid;      // SSID
-char* password;      // Password
-int   port;            // Port serveur - Server Port
+char* ssid = "Point4";     // SSID
+char* password = "PointAccess4";      // Password
+int port = 9000;
 
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
@@ -58,8 +58,6 @@ void setup() // Initialisation done only one time when you power up the card
 
 	Serial.begin(115200);
 
-	SET_Param();
-
 	pinMode(pin_led1, OUTPUT);
 	digitalWrite(pin_led1, AP_1);
 	pinMode(pin_bouton1, INPUT);
@@ -73,7 +71,7 @@ void setup() // Initialisation done only one time when you power up the card
 	Server.begin();
 	Serial.print("Server available, IP:");
 	Serial.print(WiFi.localIP());
-	Serial.print(" on port ");
+	Serial.print("  on port  ");
 	Serial.println(port);
 
 }
@@ -204,7 +202,7 @@ void SET_Param()
 		password = ParamUsager.passwordUsager;      // Password
 		port = ParamUsager.portUsager;            // Port serveur - Server Port
 	}
-	
+
 	else
 	{
 		ssid = Default.ssidDefault;	// SSID
