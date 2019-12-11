@@ -5,11 +5,18 @@
 */
 
 #include <ESP8266WiFi.h>
-#include <HardwareSerial.h>
-#include <string>
+#include <DNSServer.h> 
+#include <ESP8266WebServer.h>
+#include <IotWebConf.h>
 
-char* ssid = "Point4";     // SSID
-char* password = "PointAccess4";      // Password
+#define CONFIG_PIN 0
+#define STATUS_PIN LED_BUILTIN
+
+const char thingName[] = "NodeMCUConfig";
+const char wifiInitialApPassword[] = "MotDePasse";
+
+
+
 int port = 9000;
 
 int pin_led1 = 5;	//D3
@@ -20,40 +27,29 @@ int pin_led2 = 4;	//D2
 int pin_bouton2 = 12;	//D8
 bool AP_2 = LOW;
 
-bool USERSET_enable = true;
-
-struct USERSET {
-
-	char ssidUsager[30] = "Point4";
-	char passwordUsager[30] = "PointAccess4";
-	int   portUsager = 8888;
-	int pin_led1Usager = 5;
-	int pin_bouton1Usager = 14;
-	int pin_led2Usager = 4;
-	int pin_bouton2Usager = 12;
-
-} USET;
 
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
-void WiFi_Connection();
 void Serveur_Client();
-void SET_USERSET();
+void WebConf();
+void handleRoot();
+
+DNSServer dnsServer;
+WebServer server(80);
 
 String Message = (String)NULL; 
 WiFiServer Server(port);
+
+IotWebConf iotWebConf(thingName, &dnsServer, &server, wifiInitialApPassword);
 
 void setup() // Initialisation done only one time when you power up the card
 {
 
 	Serial.begin(115200);
 
-	SET_USERSET();
+	WebConf();
 
-	Serial.print("SSID: ");
-	Serial.println(ssid);
-	Serial.print("Password: ");
-	Serial.println(password);
+	/*
 	Serial.print("Port: ");
 	Serial.println(port);
 	Serial.print("Pin Led1  " );
@@ -64,8 +60,7 @@ void setup() // Initialisation done only one time when you power up the card
 	Serial.print(pin_led2);
 	Serial.print("  et pin bouton2  ");
 	Serial.println(pin_bouton2);
-
-	
+	*/
 
 	pinMode(pin_led1, OUTPUT);
 	digitalWrite(pin_led1, AP_1);
@@ -74,8 +69,6 @@ void setup() // Initialisation done only one time when you power up the card
 	pinMode(pin_led2, OUTPUT);
 	digitalWrite(pin_led2, AP_2);
 	pinMode(pin_bouton2, INPUT);
-
-	WiFi_Connection();
 
 	Server.begin(port);
 	Serial.print("Server available, IP:");
@@ -87,9 +80,43 @@ void setup() // Initialisation done only one time when you power up the card
 
 void loop() //As the name implies this fonction is done in loop avter the setup is done
 {
-	WiFi_Connection();
+	iotWebConf.doLoop();
 	Serveur_Client();
 	Controle_Proche();
+}
+
+void WebConf()
+{
+	Serial.println();
+	Serial.println("Starting up...");
+
+	// -- Initializing the configuration.
+	iotWebConf.setStatusPin(STATUS_PIN);
+	iotWebConf.setConfigPin(CONFIG_PIN);
+	iotWebConf.init();
+
+	// -- Set up required URL handlers on the web server.
+	server.on("/", handleRoot);
+	server.on("/config", [] { iotWebConf.handleConfig(); });
+	server.onNotFound([]() { iotWebConf.handleNotFound(); });
+
+	Serial.println("Access Point Ready.");
+}
+
+void handleRoot()
+{
+	// -- Let IotWebConf test and handle captive portal requests.
+	if (iotWebConf.handleCaptivePortal())
+	{
+		// -- Captive portal request were already served.
+		return;
+	}
+	String s = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/>";
+	s += "<title>IotWebConf 01 Minimal</title></head><body>Hello world!";
+	s += "Go to <a href='config'>configure page</a> to change settings.";
+	s += "</body></html>\n";
+
+	server.send(200, "text/html", s);
 }
 
 void Command_Decript_Execute() //Analisis of the data recieved and execution of the directives sent from the server
@@ -152,31 +179,6 @@ void Controle_Proche()
 	}
 }
 
-void WiFi_Connection()
-{
-	if (WiFi.status() != WL_CONNECTED)
-	{
-		Serial.println();
-		Serial.print("Connecting to ");
-		Serial.println(ssid);
-
-		WiFi.begin(ssid, password);
-
-		Serial.print("Connecting");
-
-		while (WiFi.status() != WL_CONNECTED)
-		{
-			delay(500);
-			Serial.print(".");
-		}
-
-		Serial.println();
-
-		Serial.print("Connected To Network, IP address: ");
-		Serial.println(WiFi.localIP());
-	}
-}
-
 void Serveur_Client()
 {
 	WiFiClient Client = Server.available();
@@ -200,19 +202,5 @@ void Serveur_Client()
 		Command_Decript_Execute(); 
 		Client.stop();
 		Serial.println("Client disconnected");
-	}
-}
-
-void SET_USERSET()
-{
-	if (USERSET_enable == true)
-	{
-		ssid = USET.ssidUsager;      // SSID
-		password = USET.passwordUsager;      // Password
-		port = USET.portUsager;            // Port serveur - Server Port
-		pin_bouton1 = USET.pin_bouton1Usager;
-		pin_bouton2 = USET.pin_bouton2Usager;
-		pin_led1 = USET.pin_led1Usager;
-		pin_led2 = USET.pin_led2Usager;
 	}
 }
