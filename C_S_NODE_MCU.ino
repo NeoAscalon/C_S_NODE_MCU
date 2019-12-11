@@ -12,51 +12,60 @@ char* ssid = "Point4";     // SSID
 char* password = "PointAccess4";      // Password
 int port = 9000;
 
+int pin_led1 = 5;	//D3
+int pin_bouton1 = 14;	//D6 
+bool AP_1 = LOW;
+
+int pin_led2 = 4;	//D2
+int pin_bouton2 = 12;	//D8
+bool AP_2 = LOW;
+
+bool USERSET_enable = true;
+
+struct USERSET {
+
+	char ssidUsager[30] = "Point4";
+	char passwordUsager[30] = "PointAccess4";
+	int   portUsager = 8888;
+	int pin_led1Usager = 5;
+	int pin_bouton1Usager = 14;
+	int pin_led2Usager = 4;
+	int pin_bouton2Usager = 12;
+
+} USET;
+
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
 void WiFi_Connection();
 void Serveur_Client();
+void SET_USERSET();
 
-String Message = (String)NULL;
+String Message = (String)NULL; 
 WiFiServer Server(port);
-
-int pin_led1 = 2;	//D4
-int pin_bouton1 = 12;	//D6 
-bool AP_1 = LOW;
-
-int pin_led2 = 4;	//D2
-int pin_bouton2 = 15;	//D8
-bool AP_2 = LOW;
-
-struct
-{
-	char* ssidUsager;
-	char* passwordUsager;
-	int   portUsager;
-	int pin_led1Usager;
-	int pin_bouton1Usager;
-	int pin_led2Usager;
-	int pin_bouton2Usager;
-	bool Y_N_enable = false;
-}
-ParamUsager;
-
-struct
-{
-	char* ssidDefault = "Point4";     // SSID
-	char* passwordDefault = "PointAccess4";      // Password
-	int portDefault = 9000;
-	int pin_led1Default = 2;
-	int pin_bouton1Default = 12;
-	int pin_led2Default = 4;
-	int pin_bouton2Default = 15;
-}
-Default;
 
 void setup() // Initialisation done only one time when you power up the card
 {
 
 	Serial.begin(115200);
+
+	SET_USERSET();
+
+	Serial.print("SSID: ");
+	Serial.println(ssid);
+	Serial.print("Password: ");
+	Serial.println(password);
+	Serial.print("Port: ");
+	Serial.println(port);
+	Serial.print("Pin Led1  " );
+	Serial.print(pin_led1);
+	Serial.print(" et pin bouton1  ");
+	Serial.println(pin_bouton1);
+	Serial.print("Pin Led2  ");
+	Serial.print(pin_led2);
+	Serial.print("  et pin bouton2  ");
+	Serial.println(pin_bouton2);
+
+	
 
 	pinMode(pin_led1, OUTPUT);
 	digitalWrite(pin_led1, AP_1);
@@ -68,7 +77,7 @@ void setup() // Initialisation done only one time when you power up the card
 
 	WiFi_Connection();
 
-	Server.begin();
+	Server.begin(port);
 	Serial.print("Server available, IP:");
 	Serial.print(WiFi.localIP());
 	Serial.print("  on port  ");
@@ -184,7 +193,7 @@ void Serveur_Client()
 
 			while (Client.available() > 0)
 			{
-				Message = Client.readString();
+				Message = Client.readStringUntil('\n');
 			}
 			delay(10);
 		}
@@ -194,19 +203,16 @@ void Serveur_Client()
 	}
 }
 
-void SET_Param()
+void SET_USERSET()
 {
-	if (ParamUsager.Y_N_enable == true)
+	if (USERSET_enable == true)
 	{
-		ssid = ParamUsager.ssidUsager;      // SSID
-		password = ParamUsager.passwordUsager;      // Password
-		port = ParamUsager.portUsager;            // Port serveur - Server Port
-	}
-
-	else
-	{
-		ssid = Default.ssidDefault;	// SSID
-		password = Default.passwordDefault;		// Password
-		port = Default.portDefault;	// Port serveur - Server Port
+		ssid = USET.ssidUsager;      // SSID
+		password = USET.passwordUsager;      // Password
+		port = USET.portUsager;            // Port serveur - Server Port
+		pin_bouton1 = USET.pin_bouton1Usager;
+		pin_bouton2 = USET.pin_bouton2Usager;
+		pin_led1 = USET.pin_led1Usager;
+		pin_led2 = USET.pin_led2Usager;
 	}
 }
