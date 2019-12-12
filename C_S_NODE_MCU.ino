@@ -15,8 +15,6 @@
 const char thingName[] = "NodeMCUConfig";
 const char wifiInitialApPassword[] = "MotDePasse";
 
-
-
 int port = 9000;
 
 int pin_led1 = 5;	//D3
