@@ -15,7 +15,7 @@
 const char thingName[] = "NodeMCUConfig";
 const char wifiInitialApPassword[] = "MotDePasse";
 
-
+bool C_PAR = true;
 
 int port = 9000;
 
@@ -27,12 +27,22 @@ int pin_led2 = 4;	//D2
 int pin_bouton2 = 12;	//D8
 bool AP_2 = LOW;
 
+struct Setings
+{
+	int port = 8888;
+	int pin_led1 = 5;
+	int pin_bouton1 = 14;
+	int pin_led2 = 4;
+	int pin_bouton2 = 12;
+
+}UserSetings;
 
 void Command_Decript_Execute();
 void Controle_Proche(); //Controle par les boutons physiques
 void Serveur_Client();
 void WebConf();
 void handleRoot();
+void SetUserSetings();
 
 DNSServer dnsServer;
 WebServer server(80);
@@ -48,6 +58,7 @@ void setup() // Initialisation done only one time when you power up the card
 	Serial.begin(115200);
 
 	WebConf();
+	SetUserSetings();
 
 	/*
 	Serial.print("Port: ");
@@ -202,5 +213,17 @@ void Serveur_Client()
 		Command_Decript_Execute(); 
 		Client.stop();
 		Serial.println("Client disconnected");
+	}
+}
+
+void SetUserSetings()
+{
+	if (C_PAR == true)
+	{
+		port = UserSetings.port;
+		pin_led1 = UserSetings.pin_led1;
+		pin_led2 = UserSetings.pin_led2;
+		pin_bouton1 = UserSetings.pin_bouton1;
+		pin_bouton2 = UserSetings.pin_bouton2;
 	}
 }
